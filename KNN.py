@@ -58,6 +58,7 @@ class KNN(Classifer):
     def crossValidate(k_fold, X: np.ndarray, y: np.ndarray, params: np.ndarray, stochastic=False):
         ss = " Stochastic" if stochastic else ""
         print(f"{k_fold}-Fold Cross Validating{ss} KNN Model with K's={params}")
+        params = np.array(params)
         accuracies = np.zeros(shape=params.shape)
         for j, k in enumerate(params):
             sub_accuracies = np.zeros(shape=k_fold)
@@ -65,6 +66,7 @@ class KNN(Classifer):
             print(f"Running with K={k}")
             classifier = KNN(k=k, stochastic=stochastic)
             i = 0
+            World = f"{i}'th Fold"
             for train_index, test_index in tqdm(splitter.split(X, y), total=splitter.get_n_splits()):
                 x_train, y_train = X[train_index], y[train_index]
                 x_test, y_test = X[test_index], y[test_index]
@@ -73,9 +75,13 @@ class KNN(Classifer):
                 accuracy = accuracy_score(y_test, predicts) * 100
                 sub_accuracies[i] = accuracy
                 i += 1
+
             avg_accuracy = np.average(sub_accuracies)
-            print(f"AVG Accuracy: {avg_accuracy}%")
+            print(f"AVG Accuracy: {avg_accuracy:2.3f}%")
             accuracies[j] = avg_accuracy
         best_k = params[accuracies.argmax()]
-        print(f"Best performance: {np.amax(accuracies)}% for k={best_k}")
+        print(f"Best performance: {np.amax(accuracies):2.3f}% for k={best_k}")
         return best_k
+
+    def getClassifierName(self):
+        return f"KNNClassifier"

@@ -11,3 +11,7 @@ class Classifer(ABC):
     @abstractmethod
     def predict(self, samples: np.ndarray):
         pass
+
+    @abstractmethod
+    def getClassifierName(self):
+        pass

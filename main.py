@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-import ID3
 import KNN
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import MinMaxScaler
-from scipy.spatial import distance
+import matplotlib.pyplot as plt
+from Dataloader import Dataloader
+from ForestClassifier import ForestClassifier
+from ID3 import ID3, FeatureType, Feature
 
 
 def fifa_players_dist(sample1, sample2):
@@ -17,29 +17,36 @@ def fifa_players_dist(sample1, sample2):
 
 
 def main():
-    train, test = pd.read_csv("datasets/fifa19/train.csv", index_col=0).to_numpy(), pd.read_csv(
-        "datasets/fifa19/test.csv", index_col=0).to_numpy()
-    scaller = MinMaxScaler()
+    bena_ds = Dataloader("datasets/236501/train.csv", "datasets/236501/test.csv", dataset_name="bena")
+    fifa19 = Dataloader("datasets/fifa19/train.csv", "datasets/fifa19/test.csv", index_col=0,
+                        categorical_features=[1], dataset_name="fifa19")
+    # Select dataset
+    current_ds = bena_ds
+    # Extract train/test
+    X_train, y_train = current_ds.train_samples(normlize=True, frac=1, shuffle=False)
+    X_test, y_test = current_ds.test_samples(normlize=True)
 
-    train_x, train_y = train[:, :-1], train[:, -1]
-    test_x: np.ndarray = test[:, :-1]
-    test_y: np.ndarray = test[:, -1]
-
-    train_pos_col = train_x[:, 1]
-    test_pos_col = test_x[:, 1]
-    train_x = scaller.fit_transform(train_x)
-    test_x = scaller.fit_transform(test_x)
-    train_x[:, 1] = train_pos_col
-    test_x[:, 1] = test_pos_col
-
-    k_to_check = np.array([133, 13])
-    best_k = KNN.KNN.crossValidate(5, train_x, train_y, k_to_check)
-    print(f"Runing Cross-Validation with normalization!")
-    knnClassifier = KNN.KNN(k=best_k)
-    knnClassifier.train(train_x, train_y)
-    predicits = knnClassifier.predict(test_x)
-    print(f"Model Performance {accuracy_score(test_y, predicits) * 100}%")
+    # find best k parameter for the model
+    params = np.array([1, 5, 10, 20])
+    features = [Feature(i, FeatureType.Continuous) for i in range(8)]
+    best_k = ID3.crossValidate(2, X_train, y_train, params=params, features=features)
+    return best_k
 
 
 if __name__ == "__main__":
-    main()
+    bena_ds = Dataloader("datasets/236501/train.csv", "datasets/236501/test.csv")
+    fifa19 = Dataloader("datasets/fifa19/train.csv", "datasets/fifa19/test.csv", index_col=0,
+                        categorical_features=[1], dataset_name="fifa19")
+    performances = []
+    best_m = 100
+    features = [Feature(i, FeatureType.Continuous) for i in range(fifa19.n_features - 1)]
+    features[1] = Feature(1, FeatureType.Discrete, np.arange(26))
+    for i in range(1, 22, 2):
+        forest = ForestClassifier(i, fifa19, ID3, {"min_leaf_samples": best_m, "features": features}, normlize=False)
+        forest.buildForest(frac=2 / 3)
+        performances.append((forest.performance()))
+
+    plt.plot([ele[0] for ele in performances], [ele[1] for ele in performances])
+    plt.xlabel("Number of trees")
+    plt.ylabel("Accuracy")
+    plt.show()

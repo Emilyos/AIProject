@@ -1,3 +1,6 @@
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import StratifiedKFold
+
 from Utils import Feature, FeatureType
 from tqdm import tqdm
 import numpy as np
@@ -38,7 +41,8 @@ class ID3(Classifer):
             else:
                 return self.pointers['less']
 
-    def __init__(self, min_leaf_samples: int, stochastic: bool = False):
+    def __init__(self, min_leaf_samples: int, features, stochastic: bool = False):
+        self.features = np.array(features)
         self.features_types = np.array([])
         self.min_leaf_samples = min_leaf_samples
         self.stochastic = stochastic
@@ -68,7 +72,7 @@ class ID3(Classifer):
             for value in values:
                 mask = x_train[:, feature.index] == value
                 x_i = x_train[mask, :]
-                y_i = y_train[mask, :]
+                y_i = y_train[mask]
                 E_i_entropy = self.Entropy(x_i, y_i)
                 information_gain -= (len(x_i) / E) * E_i_entropy
             return information_gain, None
@@ -80,10 +84,10 @@ class ID3(Classifer):
             for value in values:
                 less_mask = x_train[:, feature.index] < value
                 less_x_train = x_train[less_mask, :]
-                less_y_train = y_train[less_mask, :]
+                less_y_train = y_train[less_mask]
                 ge_mask = x_train[:, feature.index] >= value  # greater equal than value samples.
                 ge_x_train = x_train[ge_mask, :]
-                ge_y_train = y_train[ge_mask, :]
+                ge_y_train = y_train[ge_mask]
 
                 child_entropy = (len(less_x_train) / E) * self.Entropy(less_x_train, less_y_train)
                 child_entropy += (len(ge_x_train) / E) * self.Entropy(ge_x_train, ge_y_train)
@@ -131,7 +135,7 @@ class ID3(Classifer):
             for d in f.domain:
                 child_samples_mask = x_train[:, f.index] == d
                 child_x = x_train[child_samples_mask, :]
-                child_y = y_train[child_samples_mask, :]
+                child_y = y_train[child_samples_mask]
                 child_node = self.build_recursively(x_train=child_x, y_train=child_y, features=features,
                                                     default_clf=clf)
                 node.addChild(d, child_node)
@@ -139,9 +143,9 @@ class ID3(Classifer):
             left_child_mask = x_train[:, f.index] < split_val
             right_child_mask = x_train[:, f.index] >= split_val
             left_child_x = x_train[left_child_mask, :]
-            left_child_y = y_train[left_child_mask, :]
+            left_child_y = y_train[left_child_mask]
             right_child_x = x_train[right_child_mask, :]
-            right_child_y = y_train[right_child_mask, :]
+            right_child_y = y_train[right_child_mask]
             left_node = self.build_recursively(x_train=left_child_x, y_train=left_child_y, features=features,
                                                default_clf=clf)
             right_node = self.build_recursively(x_train=right_child_x, y_train=right_child_y, features=features,
@@ -151,9 +155,9 @@ class ID3(Classifer):
             node.split_val = split_val
         return node
 
-    def fit(self, x_train: np.ndarray, y_train: np.ndarray, features):
-        clf = np.bincount(y_train.flatten()).argmax()
-        self.root = self.build_recursively(x_train, y_train, features, clf)
+    def train(self, x_train: np.ndarray, y_train: np.ndarray):
+        clf = np.bincount(y_train.astype(np.int)).argmax()
+        self.root = self.build_recursively(x_train, y_train, self.features, clf)
 
     def predict_(self, sample):
         current_node: ID3.Node = self.root
@@ -170,3 +174,34 @@ class ID3(Classifer):
             prediction[i] = self.predict_(sample)
 
         return prediction
+
+    def getClassifierName(self):
+        return "ID3Classifier"
+
+    @staticmethod
+    def crossValidate(k_fold, X: np.ndarray, y: np.ndarray, params: np.ndarray, features, stochastic=False):
+        ss = " Stochastic" if stochastic else ""
+        print(f"{k_fold}-Fold Cross Validating{ss} ID3 Model with min_leaf_samples's={params}")
+        params = np.array(params)
+        accuracies = np.zeros(shape=params.shape)
+        for j, m in enumerate(params):
+            sub_accuracies = np.zeros(shape=k_fold)
+            splitter = StratifiedKFold(n_splits=k_fold)
+            print(f"Running with min_leaf_samples={m}")
+            classifier = ID3(min_leaf_samples=m, stochastic=stochastic, features=features)
+            i = 0
+            for train_index, test_index in tqdm(splitter.split(X, y), total=splitter.get_n_splits()):
+                x_train, y_train = X[train_index], y[train_index]
+                x_test, y_test = X[test_index], y[test_index]
+                classifier.train(x_train, y_train)
+                predicts = classifier.predict(x_test)
+                accuracy = accuracy_score(y_test, predicts) * 100
+                sub_accuracies[i] = accuracy
+                i += 1
+
+            avg_accuracy = np.average(sub_accuracies)
+            print(f"AVG Accuracy: {avg_accuracy:2.3f}%")
+            accuracies[j] = avg_accuracy
+        best_m = params[accuracies.argmax()]
+        print(f"Best performance: {np.amax(accuracies):2.3f}% for min_leaf_samples={best_m}")
+        return best_m
