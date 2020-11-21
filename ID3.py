@@ -1,10 +1,10 @@
 from Utils import Feature, FeatureType
 from tqdm import tqdm
 import numpy as np
+from Classifier import Classifer
 
 
-
-class ID3:
+class ID3(Classifer):
     class Node:
 
         def __init__(self, clf, is_leaf=False, feature: Feature = None, split_val=None):

@@ -1,4 +1,7 @@
 import enum
+from Classifier import Classifer
+
+
 class FeatureType(enum.Enum):
     Discrete = 0
     Continuous = 1
@@ -9,4 +12,4 @@ class Feature:
         self.index = index
         self.type = type
         self.domain = domain
-        self.used = False
+        self.used = used
