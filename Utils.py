@@ -47,12 +47,14 @@ def CrossValidateKNN(k_fold, dataloader, k_to_check, stochastic=False, frac=1, n
         if i != len(k_to_check) - 1:
             ss += ", "
     ss += " ]"
-    result_file_name = f"results/{k_fold}CV_{dataloader.datasetName()}"
-    best_k, accuracies = KNN.crossValidate(k_fold, X_train, y_train, k_to_check, stochastic)
+    stochastic_string = "Stochastic" if stochastic else ""
+    result_file_name = f"results/{k_fold}CV_{stochastic_string}_KNN_{dataloader.datasetName()}"
+    best_k, accuracies = KNN.crossValidate(k_fold, X_train, y_train, k_to_check, stochastic,
+                                           dist_func=dataloader.dist_func)
 
     result_file = open(f"{result_file_name}.txt", 'w')
-    stochastic_string = "Stochastic" if stochastic else " "
-    result_file.write(f"{k_fold}-Cross Validation on{stochastic_string}KNN model\n")
+
+    result_file.write(f"{k_fold}-Cross Validation on {stochastic_string}KNN model\n")
     result_file.write(f"\tDataset\t{dataloader.datasetName()}\n")
     result_file.write(f"\tK Checked:\t{ss}\n")
     result_file.write(f"\tNormlize Feature:\t{normlize}\n")

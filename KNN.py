@@ -55,7 +55,8 @@ class KNN(Classifer):
         return y_predict
 
     @staticmethod
-    def crossValidate(k_fold, X: np.ndarray, y: np.ndarray, params: np.ndarray, stochastic=False):
+    def crossValidate(k_fold, X: np.ndarray, y: np.ndarray, params: np.ndarray, stochastic=False,
+                      dist_func=distance.euclidean):
         ss = " Stochastic" if stochastic else ""
         print(f"{k_fold}-Fold Cross Validating{ss} KNN Model with K's={params}")
         params = np.array(params)
@@ -64,7 +65,7 @@ class KNN(Classifer):
             sub_accuracies = np.zeros(shape=k_fold)
             splitter = StratifiedKFold(n_splits=k_fold)
             print(f"Running with K={k}")
-            classifier = KNN(k=k, stochastic=stochastic)
+            classifier = KNN(k=k, stochastic=stochastic, dist_func=dist_func)
             i = 0
             World = f"{i}'th Fold"
             for train_index, test_index in tqdm(splitter.split(X, y), total=splitter.get_n_splits()):
