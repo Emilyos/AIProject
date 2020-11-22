@@ -1,4 +1,3 @@
-from Dataloader import Dataloader
 import numpy as np
 from sklearn.metrics import accuracy_score
 from tqdm import tqdm
@@ -31,5 +30,4 @@ class ForestClassifier:
         for i in range(n_samples):
             votes[i] = np.bincount(results[:, i].astype(np.int)).argmax()
         accuracy = accuracy_score(test_y, votes) * 100
-        print(f"Results:\n\t n_trees\t{self.n_trees}\n\t Accuracy:\t{accuracy}%")
         return self.n_trees, accuracy

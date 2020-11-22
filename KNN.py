@@ -81,7 +81,7 @@ class KNN(Classifer):
             accuracies[j] = avg_accuracy
         best_k = params[accuracies.argmax()]
         print(f"Best performance: {np.amax(accuracies):2.3f}% for k={best_k}")
-        return best_k
+        return best_k, [(params[i], accuracies[i]) for i in range(len(params))]
 
     def getClassifierName(self):
         return f"KNNClassifier"

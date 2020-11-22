@@ -1,10 +1,8 @@
 import numpy as np
-import pandas as pd
-import KNN
-import matplotlib.pyplot as plt
+from KNN import KNN
+import Utils
+
 from Dataloader import Dataloader
-from ForestClassifier import ForestClassifier
-from ID3 import ID3, FeatureType, Feature
 
 
 def fifa_players_dist(sample1, sample2):
@@ -19,7 +17,7 @@ def fifa_players_dist(sample1, sample2):
 def main():
     bena_ds = Dataloader("datasets/236501/train.csv", "datasets/236501/test.csv", dataset_name="bena")
     fifa19 = Dataloader("datasets/fifa19/train.csv", "datasets/fifa19/test.csv", index_col=0,
-                        categorical_features=[1], dataset_name="fifa19")
+                        categorical_features=[1], dataset_name="fifa19", dist_func=fifa_players_dist)
     # Select dataset
     current_ds = bena_ds
     # Extract train/test
@@ -28,25 +26,14 @@ def main():
 
     # find best k parameter for the model
     params = np.array([1, 5, 10, 20])
-    features = [Feature(i, FeatureType.Continuous) for i in range(8)]
-    best_k = ID3.crossValidate(2, X_train, y_train, params=params, features=features)
+    # best_k = ID3.crossValidate(2, X_train, y_train, params=params, features=features)
     return best_k
 
 
 if __name__ == "__main__":
-    bena_ds = Dataloader("datasets/236501/train.csv", "datasets/236501/test.csv")
+    bena_ds = Dataloader("datasets/236501/train.csv", "datasets/236501/test.csv", dataset_name="263501")
     fifa19 = Dataloader("datasets/fifa19/train.csv", "datasets/fifa19/test.csv", index_col=0,
                         categorical_features=[1], dataset_name="fifa19")
-    performances = []
-    best_m = 100
-    features = [Feature(i, FeatureType.Continuous) for i in range(fifa19.n_features - 1)]
-    features[1] = Feature(1, FeatureType.Discrete, np.arange(26))
-    for i in range(1, 22, 2):
-        forest = ForestClassifier(i, fifa19, ID3, {"min_leaf_samples": best_m, "features": features}, normlize=False)
-        forest.buildForest(frac=2 / 3)
-        performances.append((forest.performance()))
 
-    plt.plot([ele[0] for ele in performances], [ele[1] for ele in performances])
-    plt.xlabel("Number of trees")
-    plt.ylabel("Accuracy")
-    plt.show()
+    best_k = Utils.CrossValidateKNN(3, bena_ds, [1, 3, 7, 9])
+    Utils.run_experiment(2, bena_ds, KNN, {"k": best_k})
