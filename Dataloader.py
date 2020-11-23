@@ -8,10 +8,8 @@ from scipy.spatial.distance import euclidean
 class Dataloader:
 
     def __init__(self, train_filename, test_filename, index_col=None, class_idx=-1, categorical_features=[],
-                 dataset_name="",
                  dist_func=euclidean):
         self.dist_func = dist_func
-        self.dataset_name = dataset_name
         self.train_csv = pd.read_csv(train_filename, index_col=index_col)
         self.test_csv = pd.read_csv(test_filename, index_col=index_col)
         self.class_idx = class_idx
@@ -52,6 +50,3 @@ class Dataloader:
             else:
                 features.append(Feature(index=i, type=FeatureType.Continuous))
         return features
-
-    def datasetName(self):
-        return self.dataset_name

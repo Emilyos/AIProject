@@ -1,6 +1,5 @@
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import StratifiedKFold
-
 from Utils import Feature, FeatureType
 from tqdm import tqdm
 import numpy as np
@@ -190,7 +189,8 @@ class ID3(Classifer):
             print(f"Running with min_leaf_samples={m}")
             classifier = ID3(min_leaf_samples=m, stochastic=stochastic, features=features)
             i = 0
-            for train_index, test_index in tqdm(splitter.split(X, y), total=splitter.get_n_splits()):
+            for train_index, test_index in tqdm(splitter.split(X, y), total=splitter.get_n_splits(), position=0,
+                                                leave=True):
                 x_train, y_train = X[train_index], y[train_index]
                 x_test, y_test = X[test_index], y[test_index]
                 classifier.train(x_train, y_train)
@@ -204,4 +204,4 @@ class ID3(Classifer):
             accuracies[j] = avg_accuracy
         best_m = params[accuracies.argmax()]
         print(f"Best performance: {np.amax(accuracies):2.3f}% for min_leaf_samples={best_m}")
-        return best_m
+        return best_m, [(params[i], accuracies[i]) for i in range(len(params))]
