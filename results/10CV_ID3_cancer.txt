@@ -1,0 +1,15 @@
+10-Cross Validation on  ID3 model
+	Dataset	cancer
+	M Checked:	[ 10, 20, 30, 40 ]
+	Normlize Feature:	False
+-------------------------
+Model with m=10 got an accuracy of 93.4106280193237%
+
+Model with m=20 got an accuracy of 93.85507246376811%
+
+Model with m=30 got an accuracy of 93.63768115942028%
+
+Model with m=40 got an accuracy of 94.08212560386474%
+
+-------------------------
+Best m: 40

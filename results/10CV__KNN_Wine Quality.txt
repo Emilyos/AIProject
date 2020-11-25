@@ -1,0 +1,13 @@
+10-Cross Validation on KNN model
+	Dataset	Wine Quality
+	K Checked:	[ 9, 13, 17 ]
+	Normlize Feature:	True
+-------------------------
+Model with k=9 got an accuracy of 57.02521601128549%
+
+Model with k=13 got an accuracy of 58.435020278610466%
+
+Model with k=17 got an accuracy of 58.059425145476986%
+
+-------------------------
+Best k: 13

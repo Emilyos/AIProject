@@ -106,8 +106,6 @@ class Wine(Dataset):
         replace_map = {"quality": d}
         self.dataloader.train_csv.replace(replace_map, inplace=True)
         self.dataloader.test_csv.replace(replace_map, inplace=True)
-        print(self.dataloader.train_csv)
-        print(self.dataloader.test_csv)
 
 
 class Bank(Dataset):
@@ -122,7 +120,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--exp", type=int, help="Experiment number [1-5]", required=True)
-    parser.add_argument("--dataset", type=str, help="Dataset to use: [fifa19, cancer, banknotes, wine,abalone]",
+    parser.add_argument("--dataset", type=str, help="Dataset to use: [fifa19, cancer, banknotes, wine]",
                         required=True)
     parser.add_argument("--kFold", type=int,
                         help="Use kFold > 0 to run KFold Cross-validation to get optimum model parameter this option overrides the default K,min_leaf option, default is 0 (no cv done)",
@@ -137,7 +135,6 @@ def main():
     datasets = {"fifa19": Fifa19("fifa19", knn_k=vals.K, min_leaf_samples=vals.M),
                 "cancer": Cancer("cancer", knn_k=vals.K, min_leaf_samples=vals.M),
                 "wine": Wine("wine", knn_k=vals.K, min_leaf_samples=vals.M),
-                "abalone": Abalone("banknotes", knn_k=vals.K, min_leaf_samples=vals.M),
                 "banknotes": Bank("banknotes", knn_k=vals.K, min_leaf_samples=vals.M)}
     if vals.exp not in [1, 2, 3, 4, 5] or vals.dataset not in datasets.keys():
         parser.print_help()

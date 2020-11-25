@@ -1,0 +1,17 @@
+10-Cross Validation on Stochastic KNN model
+	Dataset	Wine Quality
+	K Checked:	[ 3, 9, 13, 19, 29 ]
+	Normlize Feature:	True
+-------------------------
+Model with k=3 got an accuracy of 81.98906718391818%
+
+Model with k=9 got an accuracy of 86.40010580144596%
+
+Model with k=13 got an accuracy of 86.39922412272969%
+
+Model with k=19 got an accuracy of 86.39922412272969%
+
+Model with k=29 got an accuracy of 86.39922412272969%
+
+-------------------------
+Best k: 9

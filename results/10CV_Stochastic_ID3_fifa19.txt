@@ -1,0 +1,19 @@
+10-Cross Validation on Stochastic ID3 model
+	Dataset	fifa19
+	M Checked:	[ 20, 30, 50, 80, 100, 150 ]
+	Normlize Feature:	False
+-------------------------
+Model with m=20 got an accuracy of 89.48663115499545%
+
+Model with m=30 got an accuracy of 89.44927460915508%
+
+Model with m=50 got an accuracy of 89.47727686111472%
+
+Model with m=80 got an accuracy of 88.8912996405526%
+
+Model with m=100 got an accuracy of 88.99325278246937%
+
+Model with m=150 got an accuracy of 87.30942791563811%
+
+-------------------------
+Best m: 20

@@ -1,0 +1,19 @@
+10-Cross Validation on StochasticKNN model
+	Dataset	fifa19
+	K Checked:	[ 3, 9, 13, 19, 33, 133 ]
+	Normlize Feature:	True
+-------------------------
+Model with k=3 got an accuracy of 40.25859425750292%
+
+Model with k=9 got an accuracy of 47.96222770776493%
+
+Model with k=13 got an accuracy of 50.13013728292408%
+
+Model with k=19 got an accuracy of 51.730483738253%
+
+Model with k=33 got an accuracy of 52.21430860508424%
+
+Model with k=133 got an accuracy of 53.67511151530899%
+
+-------------------------
+Best k: 133

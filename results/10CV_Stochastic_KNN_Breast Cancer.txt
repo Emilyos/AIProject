@@ -1,0 +1,13 @@
+10-Cross Validation on StochasticKNN model
+	Dataset	Breast Cancer
+	K Checked:	[ 9, 13, 17 ]
+	Normlize Feature:	True
+-------------------------
+Model with k=9 got an accuracy of 57.79227053140097%
+
+Model with k=13 got an accuracy of 61.31400966183575%
+
+Model with k=17 got an accuracy of 57.36714975845412%
+
+-------------------------
+Best k: 13

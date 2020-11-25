@@ -1,0 +1,19 @@
+10-Cross Validation on Stochastic ID3 model
+	Dataset	Wine Quality
+	M Checked:	[ 10, 20, 40, 50, 70, 100 ]
+	Normlize Feature:	False
+-------------------------
+Model with m=10 got an accuracy of 87.42814318462354%
+
+Model with m=20 got an accuracy of 86.86386880620702%
+
+Model with m=40 got an accuracy of 85.55722094868631%
+
+Model with m=50 got an accuracy of 86.02803738317758%
+
+Model with m=70 got an accuracy of 85.55633926997002%
+
+Model with m=100 got an accuracy of 84.89772526891201%
+
+-------------------------
+Best m: 10

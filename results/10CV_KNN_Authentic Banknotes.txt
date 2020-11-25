@@ -1,0 +1,21 @@
+10-Cross Validation on  KNN model
+	Dataset	Authentic Banknotes
+	K Checked:	[ 3, 7, 9, 11, 15, 17, 25 ]
+	Normlize Feature:	True
+-------------------------
+Model with k=3 got an accuracy of 99.17764804003338%
+
+Model with k=7 got an accuracy of 99.08757297748124%
+
+Model with k=9 got an accuracy of 98.9049207673061%
+
+Model with k=11 got an accuracy of 98.5396163469558%
+
+Model with k=15 got an accuracy of 98.45037531276064%
+
+Model with k=17 got an accuracy of 98.44954128440368%
+
+Model with k=25 got an accuracy of 97.81067556296914%
+
+-------------------------
+Best k: 3

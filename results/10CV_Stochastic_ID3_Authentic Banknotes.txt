@@ -1,0 +1,19 @@
+10-Cross Validation on Stochastic ID3 model
+	Dataset	Authentic Banknotes
+	M Checked:	[ 10, 30, 50, 70, 90, 120 ]
+	Normlize Feature:	False
+-------------------------
+Model with m=10 got an accuracy of 97.44703919933279%
+
+Model with m=30 got an accuracy of 96.35446205170976%
+
+Model with m=50 got an accuracy of 95.62718932443703%
+
+Model with m=70 got an accuracy of 94.70642201834863%
+
+Model with m=90 got an accuracy of 93.15929941618015%
+
+Model with m=120 got an accuracy of 91.70391993327772%
+
+-------------------------
+Best m: 10
