@@ -169,7 +169,7 @@ class ID3(Classifer):
 
     def predict(self, samples: np.ndarray):
         prediction = np.empty(shape=samples.shape[0])
-        for i, sample in tqdm(enumerate(samples)):
+        for i, sample in enumerate(samples):
             prediction[i] = self.predict_(sample)
 
         return prediction
@@ -189,8 +189,7 @@ class ID3(Classifer):
             print(f"Running with min_leaf_samples={m}")
             classifier = ID3(min_leaf_samples=m, stochastic=stochastic, features=features)
             i = 0
-            for train_index, test_index in tqdm(splitter.split(X, y), total=splitter.get_n_splits(), position=0,
-                                                leave=True):
+            for train_index, test_index in tqdm(splitter.split(X, y), total=splitter.get_n_splits()):
                 x_train, y_train = X[train_index], y[train_index]
                 x_test, y_test = X[test_index], y[test_index]
                 classifier.train(x_train, y_train)

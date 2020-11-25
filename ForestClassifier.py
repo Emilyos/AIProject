@@ -30,4 +30,4 @@ class ForestClassifier:
         for i in range(n_samples):
             votes[i] = np.bincount(results[:, i].astype(np.int)).argmax()
         accuracy = accuracy_score(test_y, votes) * 100
-        return self.n_trees, accuracy
+        return self.n_trees, accuracy, votes

@@ -15,6 +15,8 @@ class Dataloader:
         self.class_idx = class_idx
         self.categorical_features = categorical_features
         self.n_features = self.train_csv.shape[1] - 1
+        self.n_test_samples = self.test_csv.to_numpy().shape[0]
+        self.n_train_samples = self.train_csv.to_numpy().shape[0]
 
     def _parse(self, pd_dataset, normlize, frac=1, shuffle=False):
         if shuffle:
@@ -40,7 +42,9 @@ class Dataloader:
         return self._parse(self.test_csv, normlize=normlize, frac=frac, shuffle=shuffle)
 
     def _findDomain(self, feature_idx):
-        return []
+        train_d = set(self.train_csv.iloc[:, feature_idx])
+        test_d = set(self.test_csv.iloc[:, feature_idx])
+        return np.array(list(train_d.union(test_d)))
 
     def getFeatures(self):
         features = []

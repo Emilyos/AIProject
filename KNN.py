@@ -24,7 +24,6 @@ class KNN(Classifer):
         self.train_samples: np.ndarray = samples
         self.train_labels: np.ndarray = labels.astype(np.int, copy=False)
         self.classes: np.ndarray = np.arange(np.amax(self.train_labels) + 1)
-        # print(self.classes)
 
     def _k_nearest(self, sample: np.ndarray):
         dists = np.zeros(shape=self.train_samples.shape[0])

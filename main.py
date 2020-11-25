@@ -1,17 +1,14 @@
 import numpy as np
-import optparse
+import pandas as pd
 import argparse
 from KNN import KNN
 from ID3 import ID3
 import Utils
 import os
 import sys
-import pandas as pd
 from Dataloader import Dataloader
-from sklearn import tree
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
 from abc import *
+from sklearn.model_selection import train_test_split
 
 
 class Dataset(ABC):
@@ -76,18 +73,57 @@ class Fifa19(Dataset):
 
 class Cancer(Dataset):
 
-    def __init__(self, dataset_name, knn_k, min_leaf_samples, desc=None):
+    def __init__(self, dataset_name, knn_k, min_leaf_samples):
         super().__init__(dataset_name, knn_k, min_leaf_samples)
         self.dataset_name = "Breast Cancer"
         self.dataloader = Dataloader(self.train_path, self.test_path, index_col=0)
 
 
+class Abalone(Dataset):
+
+    def __init__(self, dataset_name, knn_k, min_leaf_samples):
+        super().__init__(dataset_name, knn_k, min_leaf_samples)
+        self.dataset_name = "Abalone"
+        self.dataloader = Dataloader(self.train_path, self.test_path, index_col=0, categorical_features=[0])
+        cat_map = {"Sex": {"M": 0, "F": 1, "I": 2}}
+        self.dataloader.train_csv.replace(cat_map, inplace=True)
+        self.dataloader.test_csv.replace(cat_map, inplace=True)
+
+
+class Wine(Dataset):
+
+    def __init__(self, dataset_name, knn_k, min_leaf_samples):
+        super().__init__(dataset_name, knn_k, min_leaf_samples)
+        self.dataset_name = "Wine Quality"
+        self.dataloader = Dataloader(self.train_path, self.test_path)
+        d = {}
+        for i in range(11):
+            if i < 7:
+                d[i] = 0
+            else:
+                d[i] = 1
+
+        replace_map = {"quality": d}
+        self.dataloader.train_csv.replace(replace_map, inplace=True)
+        self.dataloader.test_csv.replace(replace_map, inplace=True)
+        print(self.dataloader.train_csv)
+        print(self.dataloader.test_csv)
+
+
+class Bank(Dataset):
+
+    def __init__(self, dataset_name, knn_k, min_leaf_samples):
+        super().__init__(dataset_name, knn_k, min_leaf_samples)
+        self.dataset_name = "Authentic Banknotes"
+        self.dataloader = Dataloader(self.train_path, self.test_path)
+
+
 def main():
-    # parser = optparse.OptionParser()
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--exp", type=int, help="Experiment number [1-5]", required=True)
-    parser.add_argument("--dataset", type=str, help="Dataset to use: [fifa19, cancer]", required=True)
+    parser.add_argument("--dataset", type=str, help="Dataset to use: [fifa19, cancer, banknotes, wine,abalone]",
+                        required=True)
     parser.add_argument("--kFold", type=int,
                         help="Use kFold > 0 to run KFold Cross-validation to get optimum model parameter this option overrides the default K,min_leaf option, default is 0 (no cv done)",
                         default=0)
@@ -99,26 +135,29 @@ def main():
     vals = parser.parse_args()
 
     datasets = {"fifa19": Fifa19("fifa19", knn_k=vals.K, min_leaf_samples=vals.M),
-                "cancer": Cancer("cancer", knn_k=vals.K, min_leaf_samples=vals.M)}
+                "cancer": Cancer("cancer", knn_k=vals.K, min_leaf_samples=vals.M),
+                "wine": Wine("wine", knn_k=vals.K, min_leaf_samples=vals.M),
+                "abalone": Abalone("banknotes", knn_k=vals.K, min_leaf_samples=vals.M),
+                "banknotes": Bank("banknotes", knn_k=vals.K, min_leaf_samples=vals.M)}
     if vals.exp not in [1, 2, 3, 4, 5] or vals.dataset not in datasets.keys():
         parser.print_help()
         return 0
     dataset = datasets[vals.dataset]
-    is_knn = vals.exp in [3, 4]
-    stochastic_model = vals.exp in [2, 4]
-    classifier = KNN if is_knn else ID3
-    classifier_param = dataset.getKNNParams(stochastic=stochastic_model,
-                                            crossValidate=vals.kFold,
-                                            k_to_check=vals.p) if is_knn else dataset.getID3Params(
-        stochastic=stochastic_model, crossValidate=vals.kFold, m_to_check=vals.p)
-    Utils.run_experiment(vals.exp, dataset.getDL(), classifier, classifier_param, frac=(2 / 3), normlize=is_knn,
-                         dataset_name=dataset.getDatasetName())
+    if vals.exp == 5:
+        Utils.exp_5(dataset.getDL(), dataset.getKNNParams(False, crossValidate=vals.kFold, k_to_check=vals.p),
+                    dataset.getID3Params(False, crossValidate=vals.kFold, m_to_check=vals.p),
+                    dataset_name=dataset.dataset_name)
+    else:
+        is_knn = vals.exp in [3, 4]
+        stochastic_model = vals.exp in [2, 4]
+        classifier = KNN if is_knn else ID3
+        classifier_param = dataset.getKNNParams(stochastic=stochastic_model,
+                                                crossValidate=vals.kFold,
+                                                k_to_check=vals.p) if is_knn else dataset.getID3Params(
+            stochastic=stochastic_model, crossValidate=vals.kFold, m_to_check=vals.p)
+        Utils.run_experiment(vals.exp, dataset.getDL(), classifier, classifier_param, frac=(2 / 3), normlize=is_knn,
+                             dataset_name=dataset.getDatasetName())
 
-
-#
 
 if __name__ == "__main__":
     main()
-    # csv = pd.read_csv("datasets/cancer/test1.csv",index_col=0)
-    # print(csv)
-    # csv.to_csv("datasets/cancer/test1.csv", index=True,header=True)

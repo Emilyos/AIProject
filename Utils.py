@@ -3,6 +3,8 @@ from KNN import KNN
 import ID3
 from ForestClassifier import ForestClassifier
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.metrics import accuracy_score
 
 
 class FeatureType(enum.Enum):
@@ -18,6 +20,50 @@ class Feature:
         self.used = used
 
 
+def exp_5(dataloader, knn_params, id3_params, dataset_name="", frac=(2 / 3)):
+    print(f"Running experiment 5 on {dataset_name} dataset")
+    result_file_name = f"results/exp_5_{dataset_name}"
+    performances = []
+    for i in range(4, 22, 4):
+        sub_forest_trees_number = i // 4
+        knn_params['stochastic'] = False
+        forest_knn = ForestClassifier(sub_forest_trees_number, dataloader, KNN, dict(knn_params), normlize=True)
+        knn_params['stochastic'] = True
+        forest_stochastic_knn = ForestClassifier(sub_forest_trees_number, dataloader, KNN, dict(knn_params),
+                                                 normlize=True)
+        id3_params['stochastic'] = False
+        forest_id3 = ForestClassifier(sub_forest_trees_number, dataloader, ID3.ID3, dict(id3_params), normlize=False)
+        id3_params['stochastic'] = True
+        forest_stochastic_id3 = ForestClassifier(sub_forest_trees_number, dataloader, ID3.ID3, dict(id3_params),
+                                                 normlize=False)
+
+        forest_knn.buildForest(frac)
+        forest_stochastic_knn.buildForest(frac)
+        forest_id3.buildForest(frac)
+        forest_stochastic_id3.buildForest(frac)
+
+        results = np.empty(shape=(4, dataloader.n_test_samples))
+        results[0] = forest_knn.performance()[2]
+        results[1] = forest_stochastic_knn.performance()[2]
+        results[2] = forest_id3.performance()[2]
+        results[3] = forest_stochastic_id3.performance()[2]
+        votes = np.empty(shape=dataloader.n_test_samples, dtype=int)
+        for k in range(dataloader.n_test_samples):
+            bin_count = np.bincount(results[:, k].astype(np.int))
+            votes[k] = bin_count.argmax()
+        accuracy = accuracy_score(dataloader.test_samples()[1], votes) * 100
+        performances.append((i, accuracy))
+    result_file = open(f"{result_file_name}.txt", 'w')
+    for perf in performances:
+        result_file.write(f"{perf[0]} -> {perf[1]}\n")
+    plt.figure()
+    plt.plot([ele[0] for ele in performances], [ele[1] for ele in performances])
+    plt.title(f"Experiment 5 - {dataset_name}")
+    plt.xlabel("Number of trees")
+    plt.ylabel("Accuracy")
+    plt.savefig(f"{result_file_name}.png")
+
+
 def run_experiment(exp_number, dataloader, classifier, classifier_params, frac=(2 / 3), normlize=False,
                    dataset_name=""):
     print(f"Running experiment {exp_number} on {dataset_name} dataset")
@@ -28,7 +74,8 @@ def run_experiment(exp_number, dataloader, classifier, classifier_params, frac=(
     for i in range(1, 22, 2):
         forest = ForestClassifier(i, dataloader, classifier, classifier_params, normlize=normlize)
         forest.buildForest(frac=frac)
-        performances.append((forest.performance()))
+        tree, accuracy, _ = forest.performance()
+        performances.append((tree, accuracy))
     result_file = open(f"{result_file_name}.txt", 'w')
     for perf in performances:
         result_file.write(f"{perf[0]} -> {perf[1]}\n")
