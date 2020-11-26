@@ -9,6 +9,7 @@ import sys
 from Dataloader import Dataloader
 from abc import *
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 
 class Dataset(ABC):
@@ -154,6 +155,28 @@ def main():
             stochastic=stochastic_model, crossValidate=vals.kFold, m_to_check=vals.p)
         Utils.run_experiment(vals.exp, dataset.getDL(), classifier, classifier_param, frac=(2 / 3), normlize=is_knn,
                              dataset_name=dataset.getDatasetName())
+
+
+import glob
+
+
+def generateGraphs(dataset_name):
+    path = "results/"
+    files = list(filter(lambda s: "exp_" in s and ".txt" in s and dataset_name in s, os.listdir(path)))
+    files.sort()
+    plt.figure()
+    for f in files:
+        with open(f"{path}{f}", 'r') as file:
+            data = file.readlines()
+            data = [tuple(d.split(" -> ")) for d in data]
+            x = [int(d[0]) for d in data]
+            y = [float(d[1]) for d in data]
+            plt.plot(x, y)
+    plt.legend([f"Exp {i}" for i in range(1, 6)])
+    plt.xlabel("Number of trees")
+    plt.ylabel("Accuracy")
+    plt.title(f"{dataset_name} Experiments")
+    plt.savefig(f"{path}{dataset_name}.png")
 
 
 if __name__ == "__main__":
